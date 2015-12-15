@@ -185,8 +185,15 @@ def process_records(data, hostnames):
 		if record.startswith("#") or not record:
 			continue
 		try:
-			(host, keytype, key) = record.split(" ")
+			record_data = record.split(" ")
+			host = record_data[0]
+			keytype = record_data[1]
+			key = record_data[2]
 		except ValueError:
+			if not quiet:
+				print >> sys.stdout, "Unable to read record '%s'" % record
+			continue
+		except IndexError:
 			if not quiet:
 				print >> sys.stdout, "Unable to read record '%s'" % record
 			continue
@@ -388,9 +395,12 @@ def main():
 	quiet = options.quiet
 	data = ""
 	trailing = options.trailing_dot
+	all_hosts = options.all_hosts
+	port = options.port
 	timeout = options.timeout
 	if options.regex: regexfilter = re.compile(options.regex, re.IGNORECASE)
 	else: regexfilter = None
+	algos = options.algo or ["rsa", "dsa", "ecdsa", "ed25519"]
 	fphashes = options.fphashes or ["sha1", "sha2"]
 	hostnames = ()
 
